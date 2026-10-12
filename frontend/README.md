@@ -1,6 +1,6 @@
 # JeevVerse
 
-JeevVerse is a responsive animal-welfare reporting workspace. The main flow takes a report from intake and triage through caregiver assignment, field care, and coordinator-verified outcome. The frontend is React, Vite, TypeScript, and vanilla CSS. Production uses a Render Static Site plus Supabase; no separate Node API server is required.
+JeevVerse is a responsive animal-welfare reporting workspace. The main flow takes a report from intake and triage through caregiver assignment, field care, and coordinator-verified outcome. The frontend is React, Vite, TypeScript, and vanilla CSS. Production uses a Render Node.js Web Service with a minimal built-in HTTP server for the compiled frontend; Supabase provides authentication, data, and private evidence storage.
 
 ## Local setup
 
@@ -30,7 +30,7 @@ npm run preview
 | `VITE_SUPABASE_URL` | Shared production authentication and data | Supabase project URL (`https://<project-ref>.supabase.co`) |
 | `VITE_SUPABASE_ANON_KEY` | Shared production authentication and data | Supabase publishable/anon public key |
 
-The repository-root [`.env.example`](../.env.example) and [`frontend/.env.example`](./.env.example) are placeholder-only templates. Use `frontend/.env.local` for local values and Render's Static Site Environment settings for production; never commit populated env files. The web fonts are served by Google Fonts; if a network policy blocks that host, the bundled system/serif fallbacks keep the application readable.
+The repository-root [`.env.example`](../.env.example) and [`frontend/.env.example`](./.env.example) are placeholder-only templates. Use `frontend/.env.local` for local values and Render's Web Service environment settings for production; never commit populated env files. The web fonts are served by Google Fonts; if a network policy blocks that host, the bundled system/serif fallbacks keep the application readable.
 
 If both values are blank during local `npm run dev`, the site explicitly uses demo records. In production/preview builds, either value being blank shows an in-app setup error and disables the protected workspace. Do not put a Supabase service-role key, AI provider secret, database password, or other private credential in a `VITE_` variable. Vite embeds all `VITE_` values in browser JavaScript. This app does not make AI requests; the core reporting workflow does not depend on an AI credential. Optional future AI operations belong in a Supabase Edge Function with server-side secrets.
 
@@ -58,18 +58,19 @@ git push -u origin main
 
 Do not add `.env.local` or other populated `.env` files. They are ignored by Git.
 
-## 3. Create the Render service
+## 3. Create the Render Web Service
 
-Create a **Static Site** in Render and select the GitHub repository. The included root [`render.yaml`](../render.yaml) describes the same service settings; Render Blueprint sync can use it as an alternative.
+Create a **Web Service** in Render and select the GitHub repository. The included root [`render.yaml`](../render.yaml) contains the Node runtime, build/start commands, health check, and environment variable prompts; Render Blueprint sync can create the service from it.
 
-Use these exact settings if creating the Static Site manually:
+Use these exact settings if creating the Web Service manually:
 
+- **Runtime:** Node
 - **Root Directory:** `frontend`
 - **Build Command:** `npm ci && npm run build`
-- **Publish Directory:** `dist`
-- **Service type:** Static Site (not Web Service)
+- **Start Command:** `npm run start`
+- **Health Check Path:** `/`
 
-The Render rewrite is `/*` → `/index.html` with action **Rewrite**. It is in `render.yaml`; if configured manually, add it under Redirects/Rewrites. This allows React Router refreshes on `/reports`, `/reports/new`, `/reports/<case-id>`, `/impact`, `/caregivers`, and `/auth/login`. Assets remain served as normal static files because only unmatched route requests need the SPA entry point. No backend API route shares the frontend origin.
+The built React application is served from `dist` by [`server.mjs`](./server.mjs), a small dependency-free Node HTTP server that listens on Render's `PORT` and returns `index.html` for React Router routes. Do not enter Python, `pip install`, Gunicorn, or a static publish directory. No separate API server is required; Supabase remains the authentication and data service.
 
 ## 4. Configure production Supabase
 
@@ -115,24 +116,23 @@ The Render rewrite is `/*` → `/index.html` with action **Rewrite**. It is in `
    Do not grant elevated roles to public reporters. The project owner must verify the invited identity before changing its role.
 8. Verify RLS before sharing the URL: use a reporter account and an unprivileged session to confirm private case lists, team data, evidence files and mutation RPCs cannot be read/changed across roles. The migration intentionally denies anonymous access and does not grant authenticated users unrestricted table writes.
 
-There are no Edge Functions in this implementation because the workflow uses Supabase Auth, Postgres RPCs, and private Storage directly; no privileged backend or AI service is required. If a future integration needs an AI/provider secret, deploy it as a Supabase Edge Function and set that secret with `supabase secrets set NAME=value`. Never expose it as a frontend environment variable. A Render Web Service is not needed for the current feature set.
+There are no Edge Functions in this implementation because the workflow uses Supabase Auth, Postgres RPCs, and private Storage directly; no privileged backend or AI service is required. The Render Web Service only hosts the compiled frontend. If a future integration needs an AI/provider secret, deploy it as a Supabase Edge Function and set that secret with `supabase secrets set NAME=value`. Never expose it as a frontend environment variable.
 
 ## 5. Deploy and verify
 
-1. Confirm Render finishes the build and reports `Publish Directory: dist`.
-2. Open the Render URL and check that the top banner says the Supabase-backed workspace is configured (not Local demo mode).
+1. Confirm Render reports the build and Node start command succeeded; open the service URL and check that the Supabase setup warning is gone.
 3. Register a response-team account, confirm email if enabled in Supabase, log in, refresh the page, and verify session persistence and logout.
 4. Submit a test report with an image. Confirm the case appears in the queue, opens from a direct `/reports/<id>` URL, and that image evidence can be opened only by an authorized team member.
 5. Use a coordinator account to assign the case, record a care update, then add a written outcome and verify it. Confirm only the verified case contributes to Impact.
-6. Open `/reports`, `/reports/new`, `/impact`, and `/caregivers` in a new tab and refresh each URL to test the SPA rewrite. Check a narrow mobile viewport and keyboard focus states.
-7. Inspect the Render deploy's **Logs → Build** for install/typecheck/build failures. Static Sites do not have an application runtime process; inspect Render event/deploy logs for publish and rewrite configuration. Inspect the browser console and Network panel for failed Supabase requests, storage 403s, or missing assets.
+6. Open `/reports`, `/reports/new`, `/impact`, and `/caregivers` in a new tab and refresh each URL to test the Node server's SPA fallback. Check a narrow mobile viewport and keyboard focus states.
+7. Inspect the Render deploy's build and runtime logs for errors. Inspect the browser console and Network panel for failed Supabase requests, storage 403s, or missing assets.
 
 ## 6. Troubleshooting
 
 - **Build fails:** use Node.js 20.19+ or 22.12+, confirm the service root is `frontend`, ensure the committed `frontend/package-lock.json` is current, then run `npm ci`, `npm run typecheck`, and `npm run build` locally.
-- **Blank page or missing assets:** publish `frontend/dist`, not the repository root. Keep Vite's base path at `/` for the default Render domain/custom root domain.
-- **Nested route refresh gives a 404:** add the Render `/*` → `/index.html` Rewrite. Confirm it is a rewrite (not redirect) and redeploy.
-- **Missing environment setup banner:** both Vite variables must be configured on the Static Site in Render and a fresh build/deploy must complete. Vite variables are build-time values, not runtime secrets.
+- **Blank page or missing assets:** confirm the service root is `frontend`, run `npm run build`, and use `npm run start`. Keep Vite's base path at `/` for the default Render domain/custom root domain.
+- **Nested route refresh gives a 404:** confirm the Web Service is running `npm run start`; `server.mjs` falls back to `dist/index.html` for client-side routes.
+- **Missing environment setup banner:** both Vite variables must be configured on the Web Service in Render and a fresh build/deploy must complete. Vite variables are build-time values, not runtime secrets.
 - **Authentication redirect error:** use the exact deployed Render origin in Supabase Site URL and allowlist the requested `/auth/recovery` route; do not guess the final Render hostname before service creation.
 - **RLS/permission errors:** ensure `db push` applied the committed migration, the profile role is correct, caregiver records reference their profile, and review the failing table/RPC policy. Do not bypass RLS or ship the service-role key to fix access.
 - **AI requests fail:** this app does not depend on AI; report intake, assignment, care updates, and outcome verification remain available without an AI provider. Configure any future provider server-side in an Edge Function.
@@ -143,7 +143,7 @@ There are no Edge Functions in this implementation because the workflow uses Sup
 
 ## 7. Redeploy and custom domain
 
-Every push to the linked deploy branch triggers a Render Static Site build. Check the new build log and open the updated service URL after deploy completes. To use a custom domain, add it in Render's **Settings → Custom Domains**, configure the DNS records Render provides, wait for TLS to become active, then add the exact custom-domain origin and recovery redirect path in Supabase Auth URL Configuration and redeploy if frontend environment values change.
+Every push to the linked deploy branch triggers a Render Web Service build and deploy. Check the new build log and open the updated service URL after deploy completes. To use a custom domain, add it in Render's **Settings → Custom Domains**, configure the DNS records Render provides, wait for TLS to become active, then add the exact custom-domain origin and recovery redirect path in Supabase Auth URL Configuration and redeploy if frontend environment values change.
 
 ## Data and security notes
 
