@@ -35,12 +35,12 @@ function ConfigurationNotice() {
       <div>
         <strong>
           {configurationMode === "demo"
-            ? "Local demo mode"
-            : "Supabase setup required"}
+            ? "Browser-local demo mode"
+            : "Workspace mode setup required"}
         </strong>
         <p>
           {configurationMode === "demo"
-            ? "Starter reports, locations and caregivers are fictional examples. Demo changes stay in this browser and are never sent to Supabase."
+            ? "Demo reports stay in this browser only and are not sent to a response team. Examples are fictional; photos are not uploaded."
             : configurationMessage}
         </p>
       </div>

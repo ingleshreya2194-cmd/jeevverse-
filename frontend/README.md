@@ -1,6 +1,15 @@
 # JeevVerse
 
-JeevVerse is a responsive animal-welfare reporting workspace. The main flow takes a report from intake and triage through caregiver assignment, field care, and coordinator-verified outcome. The frontend is React, Vite, TypeScript, and vanilla CSS. Production uses a Render Node.js Web Service with a minimal built-in HTTP server for the compiled frontend; Supabase provides authentication, data, and private evidence storage.
+JeevVerse is an animal-welfare reporting workspace built with React, Vite, TypeScript, and vanilla CSS. It runs on Render as a Node.js Web Service.
+
+## Data modes
+
+| Mode | Set `VITE_WORKSPACE_MODE` to | Data behavior |
+| --- | --- | --- |
+| Browser-local demo (default) | `demo` (or leave unset) | No Supabase connection. Demo records and changes stay in this browser's local storage; they are not sent to a response team or shared across devices. |
+| Shared live data (optional) | `supabase` | Requires both Supabase public values, an initialized database, and configured authentication. |
+
+Demo records are fictional. Demo sign-in is simulated and is not an access-control boundary. In demo mode, selected images are only previewed in the current page; they are not uploaded or shared. Do not use demo mode for real incident reports.
 
 ## Local setup
 
@@ -13,142 +22,60 @@ Copy-Item .env.example .env.local
 npm run dev
 ```
 
-The Vite development server runs in **local demo mode** if both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are unset. Demo records and workflow changes persist in this browser's local storage only; demo credentials do not authenticate against a production service. The demonstration identity is a simulated coordinator and is not an access-control boundary. Production builds fail closed and require both public Supabase values; they never fall back to sample data.
+The example environment file selects browser-local demo mode. You can also leave `VITE_WORKSPACE_MODE` unset; demo mode is the default in development and production.
 
 Checks:
 
 ```powershell
 npm run typecheck
+npm run lint
 npm run build
-npm run preview
 ```
 
 ## Environment variables
 
-| Name | Required for | Value / source |
+| Name | Required for | Value |
 | --- | --- | --- |
-| `VITE_SUPABASE_URL` | Shared production authentication and data | Supabase project URL (`https://<project-ref>.supabase.co`) |
-| `VITE_SUPABASE_ANON_KEY` | Shared production authentication and data | Supabase publishable/anon public key |
+| `VITE_WORKSPACE_MODE` | Optional; defaults to browser-local demo | `demo` or `supabase` |
+| `VITE_SUPABASE_URL` | Optional live mode only | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Optional live mode only | Supabase publishable/anon public key |
 
-The repository-root [`.env.example`](../.env.example) and [`frontend/.env.example`](./.env.example) are placeholder-only templates. Use `frontend/.env.local` for local values and Render's Web Service environment settings for production; never commit populated env files. The web fonts are served by Google Fonts; if a network policy blocks that host, the bundled system/serif fallbacks keep the application readable.
+Vite embeds every `VITE_` value in browser JavaScript. The Supabase URL and publishable key are public client configuration—not secrets. Never put a Supabase service-role key, database password, or other private credential in a `VITE_` variable.
 
-If both values are blank during local `npm run dev`, the site explicitly uses demo records. In production/preview builds, either value being blank shows an in-app setup error and disables the protected workspace. Do not put a Supabase service-role key, AI provider secret, database password, or other private credential in a `VITE_` variable. Vite embeds all `VITE_` values in browser JavaScript. This app does not make AI requests; the core reporting workflow does not depend on an AI credential. Optional future AI operations belong in a Supabase Edge Function with server-side secrets.
+## Deploy on Render without Supabase
 
-# Deploy JeevVerse on Render
-
-## 1. Prerequisites
-
-- A GitHub repository with this project pushed to its default branch.
-- A Render account connected to that repository.
-- A Supabase project for production data, authentication, and evidence storage.
-- Node.js 20.19+ or 22.12+ and npm locally for the production checks.
-
-## 2. Push the repository to GitHub
-
-From the repository root (one level above `frontend/`):
-
-```powershell
-git init
-git add .
-git commit -m "Build JeevVerse reporting workspace"
-git branch -M main
-git remote add origin https://github.com/YOUR_ORG/YOUR_REPOSITORY.git
-git push -u origin main
-```
-
-Do not add `.env.local` or other populated `.env` files. They are ignored by Git.
-
-## 3. Create the Render Web Service
-
-Create a **Web Service** in Render and select the GitHub repository. The included root [`render.yaml`](../render.yaml) contains the Node runtime, build/start commands, health check, and environment variable prompts; Render Blueprint sync can create the service from it.
-
-Use these exact settings if creating the Web Service manually:
+Create a **Web Service** connected to this GitHub repository and set:
 
 - **Runtime:** Node
+- **Branch:** `main` (or the branch connected to the service)
 - **Root Directory:** `frontend`
 - **Build Command:** `npm ci && npm run build`
 - **Start Command:** `npm run start`
-- **Health Check Path:** `/`
+- **Environment:** `VITE_WORKSPACE_MODE=demo`
 
-The built React application is served from `dist` by [`server.mjs`](./server.mjs), a small dependency-free Node HTTP server that listens on Render's `PORT` and returns `index.html` for React Router routes. Do not enter Python, `pip install`, Gunicorn, or a static publish directory. No separate API server is required; Supabase remains the authentication and data service.
+No Supabase variables, database, Python, Gunicorn, or publish directory are required for this mode. `PORT` is provided by Render. The included [`render.yaml`](../render.yaml) declares the same Web Service defaults.
 
-## 4. Configure production Supabase
+After pushing changes to the branch connected to Render, use **Manual Deploy → Deploy latest commit** if the service does not deploy automatically. The built React app is served from `dist` by [`server.mjs`](./server.mjs), which also returns the app shell for client-side routes.
 
-1. Create a Supabase organization/project and keep the project database password in a password manager.
-2. From the repository root, install the Supabase CLI using its official installation instructions if it is not installed.
-3. Authenticate and link the CLI to the project:
+## Optional: enable shared Supabase data
 
-   ```powershell
-   supabase login
-   supabase link --project-ref YOUR_PROJECT_REF
-   supabase db push
-   ```
+Only use this if reports need to be shared with an authenticated response team. Set `VITE_WORKSPACE_MODE=supabase` and provide both `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Render, then deploy again. The database schema, RLS policies, private image bucket, and RPCs must also be applied to that same Supabase project; otherwise report submissions can fail. Review and apply [`supabase/migrations/20261011000000_initial_schema.sql`](../supabase/migrations/20261011000000_initial_schema.sql) before switching modes. Never expose the service-role key.
 
-   The migration in [`supabase/migrations/20261011000000_initial_schema.sql`](../supabase/migrations/20261011000000_initial_schema.sql) creates the team profiles, caregiver directory, case records, case updates, evidence metadata, role-aware row-level policies, and restricted RPCs for assignment and outcome verification. Review it before applying to a populated project.
-4. The migration creates the **private** `case-evidence` bucket and storage policies. Do not make the bucket public. The app requests authorized, short-lived signed image URLs for evidence retrieval; access is tied to team membership and case permissions.
-5. In Supabase **Authentication → URL Configuration**, set the Site URL to the Render URL after Render creates it, for example `https://jeevverse.onrender.com`. Add these Redirect URLs:
-   - `https://YOUR-RENDER-SERVICE.onrender.com/**`
-   - `https://YOUR-RENDER-SERVICE.onrender.com/auth/recovery`
-   - `http://localhost:5173/**` for local development only
-6. In Render **Environment**, set `VITE_SUPABASE_URL` to the project URL and `VITE_SUPABASE_ANON_KEY` to its public anon/publishable key. Save changes and trigger a new deploy so Vite embeds the configuration.
-7. Create a first account through the application. Supabase Auth stores the identity; the migration creates a reporter profile automatically. Promote a trusted coordinator using the Supabase SQL editor (after checking their email):
+## Troubleshooting
 
-   ```sql
-   update public.profiles p set role = 'coordinator'
-   from auth.users u where p.id = u.id and u.email = 'trusted-coordinator@example.org';
-   ```
-
-   A project owner must onboard caregivers through the Supabase SQL editor; this app intentionally has no public role-management screen. Invite the caregiver in Supabase Auth first, then set their role and service-area record:
-
-   ```sql
-   update public.profiles p set role = 'caregiver'
-   from auth.users u where p.id = u.id and u.email = 'caregiver@example.org';
-
-   insert into public.caregivers (profile_id, service_area, specialties, availability)
-   select id, 'Cape Town South', array['Urban wildlife'], 'Available'
-   from auth.users where email = 'caregiver@example.org'
-   on conflict (profile_id) do update
-     set service_area = excluded.service_area,
-         specialties = excluded.specialties,
-         availability = excluded.availability;
-   ```
-
-   Do not grant elevated roles to public reporters. The project owner must verify the invited identity before changing its role.
-8. Verify RLS before sharing the URL: use a reporter account and an unprivileged session to confirm private case lists, team data, evidence files and mutation RPCs cannot be read/changed across roles. The migration intentionally denies anonymous access and does not grant authenticated users unrestricted table writes.
-
-There are no Edge Functions in this implementation because the workflow uses Supabase Auth, Postgres RPCs, and private Storage directly; no privileged backend or AI service is required. The Render Web Service only hosts the compiled frontend. If a future integration needs an AI/provider secret, deploy it as a Supabase Edge Function and set that secret with `supabase secrets set NAME=value`. Never expose it as a frontend environment variable.
-
-## 5. Deploy and verify
-
-1. Confirm Render reports the build and Node start command succeeded; open the service URL and check that the Supabase setup warning is gone.
-3. Register a response-team account, confirm email if enabled in Supabase, log in, refresh the page, and verify session persistence and logout.
-4. Submit a test report with an image. Confirm the case appears in the queue, opens from a direct `/reports/<id>` URL, and that image evidence can be opened only by an authorized team member.
-5. Use a coordinator account to assign the case, record a care update, then add a written outcome and verify it. Confirm only the verified case contributes to Impact.
-6. Open `/reports`, `/reports/new`, `/impact`, and `/caregivers` in a new tab and refresh each URL to test the Node server's SPA fallback. Check a narrow mobile viewport and keyboard focus states.
-7. Inspect the Render deploy's build and runtime logs for errors. Inspect the browser console and Network panel for failed Supabase requests, storage 403s, or missing assets.
-
-## 6. Troubleshooting
-
-- **Build fails:** use Node.js 20.19+ or 22.12+, confirm the service root is `frontend`, ensure the committed `frontend/package-lock.json` is current, then run `npm ci`, `npm run typecheck`, and `npm run build` locally.
-- **Blank page or missing assets:** confirm the service root is `frontend`, run `npm run build`, and use `npm run start`. Keep Vite's base path at `/` for the default Render domain/custom root domain.
+- **`npm run start` says “Missing script”:** confirm Root Directory is `frontend` and that Render is deploying a commit containing `frontend/package.json` with the `start` script.
+- **Report submission in demo mode:** the case is stored in this browser's local storage only. It does not reach a real response team, and image files are not uploaded.
+- **Supabase report submission fails:** confirm `VITE_WORKSPACE_MODE=supabase`, both public values point to the same project, and the schema/RLS migration has been applied there.
+- **Blank page or missing assets:** confirm Root Directory is `frontend`, run `npm run build`, and use `npm run start`. Keep Vite's base path at `/` for the default Render domain/custom root domain.
 - **Nested route refresh gives a 404:** confirm the Web Service is running `npm run start`; `server.mjs` falls back to `dist/index.html` for client-side routes.
-- **Missing environment setup banner:** both Vite variables must be configured on the Web Service in Render and a fresh build/deploy must complete. Vite variables are build-time values, not runtime secrets.
-- **Authentication redirect error:** use the exact deployed Render origin in Supabase Site URL and allowlist the requested `/auth/recovery` route; do not guess the final Render hostname before service creation.
-- **RLS/permission errors:** ensure `db push` applied the committed migration, the profile role is correct, caregiver records reference their profile, and review the failing table/RPC policy. Do not bypass RLS or ship the service-role key to fix access.
-- **AI requests fail:** this app does not depend on AI; report intake, assignment, care updates, and outcome verification remain available without an AI provider. Configure any future provider server-side in an Edge Function.
-- **Evidence upload is rejected:** allow only JPEG, PNG and WebP up to 5 MB per image, confirm the private `case-evidence` bucket and policies were created, and retry after checking Storage logs. For 401/403 on retrieval, verify the signed-in user's team/case permission; never make the evidence bucket public as a workaround.
-- **WebGL/performance:** the application does not use WebGL or 3D. Workflow screens and data are not dependent on a 3D fallback; reduced-motion preferences are respected.
-- **Local demo data appears in production:** configure both Supabase public values in Render, trigger a clean deploy, and reload. Demo records are browser-local synthetic examples and must not be treated as live submissions.
-- **CORS errors:** no separate backend is used. Calls go directly to the configured Supabase origin; allow the deployed frontend origin in Supabase Auth redirect settings and check the Supabase project's API/network status.
 
-## 7. Redeploy and custom domain
+## Redeploy and custom domain
 
-Every push to the linked deploy branch triggers a Render Web Service build and deploy. Check the new build log and open the updated service URL after deploy completes. To use a custom domain, add it in Render's **Settings → Custom Domains**, configure the DNS records Render provides, wait for TLS to become active, then add the exact custom-domain origin and recovery redirect path in Supabase Auth URL Configuration and redeploy if frontend environment values change.
+Every push to the linked deploy branch triggers a Render Web Service build and deploy. Check the build and runtime logs, then open the service URL. To use a custom domain, add it in Render's **Settings → Custom Domains**, configure the DNS records Render provides, and wait for TLS to activate.
 
 ## Data and security notes
 
-- Case evidence is private and never loaded from a public bucket.
-- Reporter identity/contact details and all case records are restricted by RLS; production app routes require a Supabase session.
-- `assign_case` and `verify_case_outcome` enforce coordinator/admin roles in Postgres, and verification creates its outcome history entry atomically.
-- Local demo changes use browser local storage and are not sent to Supabase or visible to other users.
-- Sample cases and caregiver directory entries are synthetic demo fixtures; they are not real incident reports or operational live data.
+- Browser-local demo changes are kept in that browser's local storage. They are not synchronized to other browsers or devices.
+- All sample cases, locations, outcomes, and caregivers are fictional and must not be treated as real incident reports.
+- Demo sign-in only simulates a coordinator and is not a security boundary. Do not store real or sensitive report data in demo mode.
+- For shared live data, use Supabase mode with the reviewed RLS migration. Evidence storage is private in Supabase mode.

@@ -7,7 +7,5 @@ services:
     startCommand: npm run start
     healthCheckPath: /
     envVars:
-      - key: VITE_SUPABASE_URL
-        sync: false
-      - key: VITE_SUPABASE_ANON_KEY
-        sync: false
+      - key: VITE_WORKSPACE_MODE
+        value: demo

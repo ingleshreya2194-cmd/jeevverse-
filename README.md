@@ -1,8 +1,7 @@
 # JeevVerse
 
-JeevVerse is an animal-welfare reporting workspace for rescue teams. It supports report intake, triage, caregiver assignment, field care updates, and a separately verified outcome. The frontend is a React/Vite/TypeScript application served on Render by a small Node.js HTTP server; production data and authentication use Supabase.
+JeevVerse is an animal-welfare reporting workspace for rescue teams. Its Render Node.js Web Service defaults to browser-local demo mode and does not require Supabase. Demo reports stay in the current browser and are not sent to a rescue team; shared live data is an optional Supabase mode.
 
-See [`frontend/README.md`](./frontend/README.md) for local setup, Render Web Service settings, required environment variables, Supabase migration and RLS setup, release checks, troubleshooting, and custom-domain instructions.
+See [`frontend/README.md`](./frontend/README.md) for local setup, Render Web Service settings, demo-mode limitations, and optional Supabase configuration.
 
-Key production configuration: Render Node.js Web Service with root directory `frontend`, build command `npm ci && npm run build`, and start command `npm run start`. The built frontend is served from `dist` by a minimal Node server. Supply only the public `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` values in Render's environment settings; never use the Supabase service-role key in the frontend.
-"# jeevverse-" 
+Render configuration: Runtime Node, root directory `frontend`, build command `npm ci && npm run build`, start command `npm run start`. Demo mode requires no Supabase environment variables.
