@@ -1,0 +1,21 @@
+# Dependencies and build outputs
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# Local environment files (keep the public template)
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Logs and OS/IDE files
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
