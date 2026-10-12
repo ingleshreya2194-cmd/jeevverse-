@@ -1,0 +1,443 @@
+/* JeevVerse's warm-paper and forest-green visual skin. */
+body {
+  background: var(--color-page);
+  color: var(--color-ink);
+}
+
+.h-display {
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+
+.sidebar {
+  --color-ink: var(--color-forest-ink);
+  --color-muted: var(--color-forest-muted);
+  --color-subtle: var(--color-forest-subtle);
+  --color-rule: var(--color-green-border);
+  --color-rule-strong: var(--color-green-border-strong);
+  background: var(--color-forest);
+  border-right-color: var(--color-green-border);
+}
+.brand-mark {
+  color: var(--color-leaf);
+  border-color: color-mix(in srgb, var(--color-leaf) 50%, transparent);
+}
+.brand-wordmark span {
+  color: var(--color-leaf);
+}
+.side-link:hover,
+.side-link--active {
+  color: var(--color-forest-ink);
+  background: var(--color-green-hover);
+}
+.side-link--active {
+  box-shadow: inset 3px 0 var(--color-leaf);
+}
+.side-link--active svg,
+.sidebar-create,
+.signin-link {
+  color: var(--color-leaf-bright);
+}
+.sidebar-create {
+  border-color: color-mix(in srgb, var(--color-leaf-bright) 38%, transparent);
+}
+.sidebar-create:hover {
+  background: color-mix(in srgb, var(--color-leaf-bright) 12%, transparent);
+  border-color: var(--color-leaf-bright);
+}
+.service-area__pin {
+  background: #a7df8e;
+}
+.service-area__pin::after {
+  border-color: color-mix(in srgb, #a7df8e 34%, transparent);
+}
+.service-area strong {
+  color: #edf4e8;
+}
+.user-mark {
+  color: var(--color-leaf-bright);
+}
+.icon-button:hover {
+  background: var(--color-green-hover);
+}
+
+.main-area {
+  background: var(--color-page);
+}
+.topbar {
+  --color-ink: #173d32;
+  --color-muted: #60756a;
+  background: color-mix(in srgb, var(--color-page) 94%, transparent);
+  border-color: var(--color-rule);
+}
+.topbar__breadcrumb,
+.mobile-brand {
+  color: #244b3d;
+}
+.button--primary {
+  color: #143226;
+  background: var(--color-attention);
+  border-color: var(--color-attention);
+}
+.button--primary:hover:not(:disabled) {
+  background: var(--color-leaf-bright);
+  border-color: var(--color-leaf-bright);
+}
+.button--secondary {
+  color: #244a3d;
+  background: var(--color-panel);
+  border-color: var(--color-rule-strong);
+}
+.button--secondary:hover:not(:disabled) {
+  background: var(--color-evidence-well);
+  border-color: color-mix(in srgb, var(--color-forest) 38%, transparent);
+}
+.button--quiet:hover {
+  background: color-mix(in srgb, var(--color-forest) 7%, transparent);
+}
+.configuration-notice {
+  --color-ink: #284b36;
+  --color-muted: #57705b;
+  background: #e7efd9;
+  border-color: color-mix(in srgb, var(--color-editorial) 24%, transparent);
+}
+.configuration-notice__dot {
+  background: #70a956;
+}
+.configuration-notice--error {
+  background: var(--color-paper-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 32%, transparent);
+}
+
+.operational-summary {
+  --color-ink: var(--color-forest-ink);
+  --color-muted: #d1e0d2;
+  --color-rule: var(--color-green-border);
+  background: linear-gradient(110deg, var(--color-forest), var(--color-forest-mid));
+  border-color: color-mix(in srgb, var(--color-forest-mid) 40%, transparent);
+}
+.summary-focus__number,
+.summary-link,
+.summary-link:hover {
+  color: #c3ed85;
+}
+.summary-stat > span {
+  color: var(--color-forest-ink);
+}
+.ledger-panel,
+.directory-panel,
+.detail-section,
+.case-action-panel,
+.impact-breakdown,
+.impact-proof {
+  background: var(--color-panel);
+  border-color: var(--color-rule);
+}
+.ledger-heading h2,
+.directory-heading h2,
+.section-heading h2,
+.case-action-panel h2,
+.impact-breakdown .section-heading h2 {
+  color: var(--color-ink);
+}
+.search-field,
+.filter-select,
+.range-filter,
+.modal-outcome {
+  background: var(--color-paper-soft);
+  border-color: var(--color-rule);
+}
+.search-field:focus-within {
+  border-color: #77a75d;
+}
+.search-field input,
+.filter-select select,
+.range-filter select {
+  color: var(--color-ink);
+}
+.search-field input::placeholder {
+  color: #849389;
+}
+.filter-select option,
+.range-filter option,
+select option {
+  color: var(--color-ink);
+  background: var(--color-panel);
+}
+.filter-tab--active::after {
+  background: #79a957;
+}
+.filter-tab__count {
+  color: #183d2e;
+  background: #b0dd80;
+}
+.case-table td,
+.caregiver-table td {
+  border-color: color-mix(in srgb, var(--color-forest) 10%, transparent);
+}
+.case-row:hover,
+.mobile-case:active {
+  background: color-mix(in srgb, var(--color-verified) 7%, transparent);
+}
+.case-name,
+.case-facts dd,
+.case-detail-heading .page-title,
+.case-table td,
+.caregiver-table td,
+.caregiver-identity strong {
+  color: #24473a;
+}
+.case-time,
+.case-condition,
+.case-location,
+.case-caregiver,
+.ledger-pagination {
+  color: #65796d;
+}
+.case-caregiver em,
+.specialities span {
+  color: #587b5d;
+}
+.specialities span {
+  border-color: var(--color-rule);
+}
+.status-label,
+.urgency-label {
+  color: #496456;
+  border-color: color-mix(in srgb, var(--color-forest) 18%, transparent);
+}
+.status-label--pending {
+  color: #866127;
+}
+.status-label--active,
+.status-label--verified {
+  color: var(--color-success-ink);
+}
+.urgency-label--urgent {
+  color: #a74d37;
+  background: color-mix(in srgb, var(--color-urgent) 10%, transparent);
+}
+.urgency-label--high {
+  color: #8b682a;
+  background: color-mix(in srgb, #cea54a 14%, transparent);
+}
+.urgency-label--routine {
+  color: #64796d;
+  background: color-mix(in srgb, var(--color-forest) 6%, transparent);
+}
+
+.detail-section,
+.case-action-panel,
+.impact-breakdown,
+.impact-aside,
+.caregiver-overview {
+  border-color: var(--color-rule);
+}
+.case-description,
+.action-complete,
+.verified-outcome {
+  color: #345b47;
+  background: var(--color-paper-muted);
+  border-color: color-mix(in srgb, var(--color-verified) 20%, transparent);
+}
+.verified-outcome p,
+.modal-outcome p {
+  color: var(--color-ink);
+}
+.action-hint {
+  color: var(--color-warning-ink);
+  background: var(--color-paper-warning);
+  border-color: color-mix(in srgb, #a88743 20%, transparent);
+}
+.timeline-marker {
+  border-color: var(--color-panel);
+}
+.impact-primary-stat strong,
+.impact-primary-stat small,
+.impact-note svg {
+  color: var(--color-verified);
+}
+.impact-aside {
+  --color-ink: var(--color-forest-ink);
+  --color-muted: #d3e1d2;
+  --color-subtle: #b0c7b4;
+  background: linear-gradient(145deg, #144b3c, #1c5944);
+}
+.impact-aside h2 {
+  color: var(--color-ink);
+}
+.impact-aside .text-action {
+  color: var(--color-leaf-bright);
+}
+.trace-legend {
+  color: var(--color-forest-subtle);
+}
+.impact-aside__rule {
+  background: var(--color-leaf);
+}
+.trace-route {
+  background: linear-gradient(90deg, var(--color-attention), #8fc69b);
+}
+.caregiver-overview {
+  background: var(--color-paper-muted);
+}
+.caregiver-overview__number {
+  color: var(--color-success-ink);
+}
+.caregiver-overview > span:nth-child(2) strong {
+  color: var(--color-ink);
+}
+
+/* Report wizard and authentication surfaces stay readable on warm paper. */
+.wizard-layout {
+  border-color: var(--color-rule);
+}
+.wizard-aside {
+  --color-ink: var(--color-forest-ink);
+  --color-muted: #d0e0d1;
+  --color-subtle: #a4b9a8;
+  --color-rule: var(--color-green-border);
+  background: linear-gradient(155deg, #12493a, var(--color-forest-deep) 78%);
+}
+.wizard-mark {
+  color: var(--color-leaf-bright);
+  border-color: color-mix(in srgb, var(--color-leaf-bright) 42%, transparent);
+}
+.report-safety strong {
+  color: var(--color-leaf-bright);
+}
+.wizard-panel {
+  background: var(--color-panel);
+}
+.wizard-step--current {
+  color: #254b3c;
+}
+.wizard-step--current .wizard-step__number {
+  color: var(--color-forest);
+  background: var(--color-attention);
+  border-color: var(--color-attention);
+}
+.wizard-step--complete {
+  color: #528268;
+}
+.wizard-step--complete .wizard-step__number {
+  color: #3b8168;
+  border-color: color-mix(in srgb, var(--color-verified) 45%, transparent);
+}
+.progress-track {
+  background: #e3e8dc;
+}
+.progress-track span {
+  background: #80ad5d;
+}
+.wizard-step-title > span {
+  color: #668449;
+}
+.wizard-step-title h2,
+.review-summary h3 {
+  color: #183f33;
+}
+.field__label {
+  color: #355747;
+}
+.field__control,
+select.field__control,
+.upload-preview {
+  color: var(--color-ink);
+  background: var(--color-panel-raised);
+  border-color: var(--color-rule-strong);
+  color-scheme: light;
+}
+.field__control::placeholder {
+  color: #87958a;
+}
+.field__control:focus {
+  background: var(--color-panel-raised);
+  border-color: #6d9c55;
+}
+.field__control--error {
+  border-color: var(--color-danger);
+}
+.field__error {
+  color: #a33d34;
+}
+.text-action {
+  color: #3f7653;
+}
+.upload-target,
+.review-summary {
+  color: #24473a;
+  background: #f5f7ef;
+  border-color: var(--color-rule-strong);
+}
+.upload-target:hover {
+  background: var(--color-paper-muted);
+  border-color: #79a85d;
+}
+.upload-icon {
+  color: #3e7757;
+  background: var(--color-paper-green);
+  border-color: color-mix(in srgb, #3e7757 24%, transparent);
+}
+.upload-preview > span,
+.upload-preview button {
+  color: #5d7466;
+}
+.review-summary dd {
+  color: #24473a;
+}
+.submission-success,
+.auth-panel,
+.modal {
+  color: var(--color-ink);
+  background: var(--color-panel);
+  border-color: var(--color-rule);
+}
+.success-reference {
+  color: var(--color-ink);
+  background: var(--color-paper-muted);
+}
+.auth-page {
+  background: radial-gradient(ellipse at 50% 0%, #e5ecd9 0%, var(--color-page) 58%);
+}
+.auth-panel h1 {
+  color: #193f32;
+}
+.auth-back,
+.auth-description,
+.auth-switch,
+.modal-copy {
+  color: #65796d;
+}
+.password-label a,
+.auth-switch a {
+  color: #46764e;
+}
+.demo-auth-note {
+  background: #edf3e6;
+  border-color: color-mix(in srgb, #4d7043 20%, transparent);
+}
+.demo-auth-note strong {
+  color: #456f44;
+}
+.modal-scrim {
+  background: color-mix(in srgb, var(--color-forest) 48%, transparent);
+}
+.toast {
+  color: #204336;
+  background: var(--color-panel);
+  border-color: var(--color-rule-strong);
+}
+.error-message {
+  color: #873d31;
+  background: var(--color-paper-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 26%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .button:active,
+  .sidebar-create:active,
+  .upload-target:active {
+    transform: translateY(1px);
+  }
+}

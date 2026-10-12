@@ -44,7 +44,7 @@ img {
   background: var(--color-attention);
 }
 :focus-visible {
-  outline: 2px solid var(--color-attention);
+  outline: 2px solid var(--color-focus);
   outline-offset: 3px;
 }
 .h-display {
